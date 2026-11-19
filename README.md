@@ -1,4 +1,5 @@
 # Candidate Management API
+#### This repository extends the candidate API into an event-driven system with Kafka. See [ROADMAP](/ROADMAP.md)
 
 A Spring Boot REST application for managing candidate records. It provides a
 REST API under `/api/v1/candidates` to create, view, update, soft-delete and
