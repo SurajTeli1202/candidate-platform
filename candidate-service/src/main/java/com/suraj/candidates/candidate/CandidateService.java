@@ -4,10 +4,14 @@ import com.suraj.candidates.candidate.dto.CandidateRequest;
 import com.suraj.candidates.candidate.dto.CandidateResponse;
 import com.suraj.candidates.candidate.dto.CandidateSearchCriteria;
 import com.suraj.candidates.candidate.dto.PageResponse;
+import com.suraj.candidates.event.CandidateEvent;
+import com.suraj.candidates.event.CandidateEventPublisher;
+import com.suraj.candidates.event.CandidateEventType;
 import com.suraj.candidates.skill.Skill;
 import com.suraj.candidates.skill.SkillRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,12 +32,14 @@ public class CandidateService {
     private final CandidateRepository candidateRepository;
     private final SkillRepository skillRepository;
     private final CandidateMapper mapper;
+    private final CandidateEventPublisher eventPublisher;
 
     public CandidateService(CandidateRepository candidateRepository, SkillRepository skillRepository,
-                            CandidateMapper mapper) {
+                            CandidateMapper mapper, CandidateEventPublisher eventPublisher) {
         this.candidateRepository = candidateRepository;
         this.skillRepository = skillRepository;
         this.mapper = mapper;
+        this.eventPublisher = eventPublisher;
     }
 
     @Transactional
@@ -44,6 +50,7 @@ public class CandidateService {
         Candidate candidate = mapper.toNewEntity(request);
         candidate.replaceSkills(resolveSkills(request.skills()));
         Candidate saved = candidateRepository.saveAndFlush(candidate);
+        eventPublisher.publish(CandidateEvent.from(CandidateEventType.CANDIDATE_CREATED, saved, MDC.get("requestId")));
         log.info("Created candidate {}", saved.getId());
         return mapper.toResponse(saved);
     }
@@ -72,6 +79,7 @@ public class CandidateService {
         candidate.replaceSkills(resolveSkills(request.skills()));
         // Flush now so the response contains the incremented version and the new updatedAt.
         Candidate saved = candidateRepository.saveAndFlush(candidate);
+        eventPublisher.publish(CandidateEvent.from(CandidateEventType.CANDIDATE_UPDATED, saved, MDC.get("requestId")));
         log.info("Updated candidate {}", id);
         return mapper.toResponse(saved);
     }
@@ -80,7 +88,8 @@ public class CandidateService {
     public void delete(Long id) {
         Candidate candidate = findCandidate(id);
         candidate.markDeleted();
-        candidateRepository.save(candidate);
+        Candidate saved = candidateRepository.saveAndFlush(candidate);
+        eventPublisher.publish(CandidateEvent.from(CandidateEventType.CANDIDATE_DELETED, saved, MDC.get("requestId")));
         log.info("Soft-deleted candidate {}", id);
     }
 

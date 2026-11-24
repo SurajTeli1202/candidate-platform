@@ -11,6 +11,7 @@ import org.springframework.boot.test.system.CapturedOutput;
 import org.springframework.boot.test.system.OutputCaptureExtension;
 import org.springframework.boot.webmvc.test.autoconfigure.AutoConfigureMockMvc;
 import org.springframework.http.MediaType;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 
@@ -28,6 +29,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 /** Full stack (controller, service, JPA, Flyway) against a private in-memory H2 database. */
 @SpringBootTest(properties = "spring.datasource.url=jdbc:h2:mem:candidates-e2e;DB_CLOSE_DELAY=-1")
+@EmbeddedKafka(
+        partitions = 3,
+        topics = "candidate-events",
+        bootstrapServersProperty = "spring.kafka.bootstrap-servers"
+)
 @AutoConfigureMockMvc
 @ExtendWith(OutputCaptureExtension.class)
 class CandidateApiIntegrationTest {

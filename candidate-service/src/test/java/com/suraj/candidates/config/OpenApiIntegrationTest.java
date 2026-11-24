@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -18,6 +19,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "spring.datasource.url=jdbc:h2:mem:candidates-openapi;DB_CLOSE_DELAY=-1")
+@EmbeddedKafka(
+        partitions = 3,
+        topics = "candidate-events",
+        bootstrapServersProperty = "spring.kafka.bootstrap-servers"
+)
 class OpenApiIntegrationTest {
 
     private final HttpClient client = HttpClient.newHttpClient();

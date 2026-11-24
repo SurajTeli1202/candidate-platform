@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.DefaultApplicationArguments;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.kafka.test.context.EmbeddedKafka;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,6 +25,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
         properties = "spring.datasource.url=jdbc:h2:mem:candidates-demo;DB_CLOSE_DELAY=-1")
+@EmbeddedKafka(
+        partitions = 3,
+        topics = "candidate-events",
+        bootstrapServersProperty = "spring.kafka.bootstrap-servers"
+)
 @ActiveProfiles("demo")
 class DemoDataLoaderTest {
 

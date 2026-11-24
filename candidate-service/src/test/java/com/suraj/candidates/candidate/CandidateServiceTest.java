@@ -4,6 +4,7 @@ import com.suraj.candidates.candidate.dto.CandidateRequest;
 import com.suraj.candidates.candidate.dto.CandidateResponse;
 import com.suraj.candidates.candidate.dto.CandidateSearchCriteria;
 import com.suraj.candidates.candidate.dto.PageResponse;
+import com.suraj.candidates.event.CandidateEventPublisher;
 import com.suraj.candidates.skill.Skill;
 import com.suraj.candidates.skill.SkillRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,11 +44,14 @@ class CandidateServiceTest {
     @Mock
     private SkillRepository skillRepository;
 
+    @Mock
+    private CandidateEventPublisher candidateEventPublisher;
+
     private CandidateService service;
 
     @BeforeEach
     void setUp() {
-        service = new CandidateService(candidateRepository, skillRepository, new CandidateMapper());
+        service = new CandidateService(candidateRepository, skillRepository, new CandidateMapper(), candidateEventPublisher);
     }
 
     @Test
@@ -166,12 +170,13 @@ class CandidateServiceTest {
     @Test
     void deleteMarksCandidateDeletedAndSavesIt() {
         Candidate existing = existingCandidate(7L, 0L);
+        when(candidateRepository.saveAndFlush(existing)).thenReturn(existing);
         when(candidateRepository.findById(7L)).thenReturn(Optional.of(existing));
 
         service.delete(7L);
 
         assertThat(existing.isDeleted()).isTrue();
-        verify(candidateRepository).save(existing);
+        verify(candidateRepository).saveAndFlush(existing);
         verify(candidateRepository, never()).delete(any(Candidate.class));
     }
 
