@@ -25,6 +25,7 @@ Windows PowerShell:
 $env:JAVA_HOME = "C:\path\to\jdk-21"
 $env:Path = "$env:JAVA_HOME\bin;$env:Path"
 java -version
+cd candidate-service
 .\mvnw.cmd -v
 ```
 
@@ -34,21 +35,26 @@ Linux/macOS (bash/zsh). Replace the example path with your JDK 21 directory:
 export JAVA_HOME=/path/to/jdk-21
 export PATH="$JAVA_HOME/bin:$PATH"
 java -version
-./mvnw -v
+cd candidate-service
+.\mvnw.cmd -v
 ```
 
-`./mvnw -v` must report `Java version: 21...`. A `JAVA_HOME` change only applies
+`cd candidate-service
+.\mvnw.cmd -v` must report `Java version: 21...`. A `JAVA_HOME` change only applies
 to shells (and IDEs) started after the change. Already open terminals keep the
 old value.
 
 ## How to run
 
-Use `.\mvnw.cmd` on Windows PowerShell and `./mvnw` on Linux/macOS. Stop the
+Use `cd candidate-service 
+.\mvnw.cmd` on Windows PowerShell and `cd candidate-service
+./mvnw` on Linux/macOS. Stop the
 application with `Ctrl+C`.
 
 ### Default profile (file-based H2)
 
 ```powershell
+cd candidate-service
 .\mvnw.cmd spring-boot:run
 ```
 
@@ -70,6 +76,7 @@ demo profiles use the same database; deleting this directory removes the data.
 ### Demo profile (sample data and H2 console)
 
 ```powershell
+cd candidate-service
 .\mvnw.cmd spring-boot:run "-Dspring-boot.run.arguments=--spring.profiles.active=demo"
 ```
 
@@ -302,6 +309,7 @@ A duplicate email returns `409` with title `Duplicate email` and detail
 Run the full build and test suite:
 
 ```powershell
+cd candidate-service
 .\mvnw.cmd clean verify
 ```
 
@@ -327,12 +335,14 @@ Maven build and needs Node.js and Chrome or Edge (set `CHROME_PATH` if the
 browser is not in a standard location):
 
 ```powershell
+cd candidate-service
 node --test src\test\browser\candidate-ui.test.js
 ```
 
 ## Project structure
 
 ```text
+candidate-service/
 src/main/java/com/suraj/candidates
 ├── CandidatesApplication.java
 ├── candidate/        Entity, enum, repository, specifications, service,
